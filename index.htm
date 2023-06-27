@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="version 1.0.1">
+    <meta name="author" content="Christopher Pollard, DVRPC">     
+    <title>DVRPC - Smart Growth Project Database</title>
+
+   <!-- Core CSS -->
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/typeahead.js-bootstrap.css" > <!--https://github.com/jharding/typeahead.js-bootstrap.css-->
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@0.7/dist/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="css/esri-leaflet-geocoder.css" />
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css">
+    <link rel="stylesheet" type="text/css" href="css/Main.css"/>
+	
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.2.0/respond.js"></script>
+  </head>
+
+  <body>
+  
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <span>
+                <a href="//www.dvrpc.org" target="_new">
+                    <img class="dvrpclogo" style="margin:10px 0px 0px 4px" src="img/dvrpc_logo_small.png" alt="DVRPC Logo" />
+                </a>
+                <img class="dvrpclogo" style="margin:5px 0px 0px 10px" src="img/SGPD_Header.png" alt="Smart Growth Project Database Logo"/>
+            </span>
+        </div>
+          <div class="navbar-collapse collapse">
+			
+		     <form class="navbar-form navbar-right" style=>
+			      <div class="btn-group" data-toggle="buttons">
+					   <label class="btn btn-ABOUT">
+						<data-toggle="collapse" data-target=".navbar-collapse.in" onclick="$('#aboutModal').modal('show'); return false;"st><i class="icon-question-sign" ></i>&nbsp;&nbsp;  ABOUT </li> 
+					  </label>
+					  <label class="btn btn-DNT">
+						<input type="radio" name="overlayLayers" id="DNT_PT" value="load_image1"> DNT 
+					  </label>
+					  <label class="btn btn-TND">
+						<input type="radio" name="overlayLayers" id="TND_PT" value="load_image2"> TND 
+					  </label>
+					  <label class="btn btn-CSD">
+						<input type="radio" name="overlayLayers" id="CS_PT" value="load_image3"> CSD
+					  </label>
+					   
+					</div>
+			 </form>
+			
+            <ul class="nav navbar-nav navbar-right">    
+			<form class="navbar-form navbar-right" >
+            </form>					   
+            </ul>
+			</div>
+	</div> 
+
+    <div class="row" id="container">
+		<div class="col-sm-4 col-lg-4" id="sidebar" style="padding: 10px; overflow: auto;">
+                    <div class="panel-group">
+						 <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_" href="">
+                                    <font color="white"><strong>Project Info</strong></font>
+                                </a>
+                            </div>
+							<div id="overlay-layers" class="panel-collapse collapse in">
+									<div id="box" ></div>									
+									<div id="resultsheader" ></div>
+									<div id="infosidebar"></div>
+									<div id="carousel-example-generic" class="carousel" data-ride="carousel"></div>
+						  
+							</div>
+						</div>
+                    </div>  
+					<div id="howto" class="alert alert-info alert-block nomobile" style="margin-top:10px;">
+						<button class="close" data-dismiss="alert" type="button">×</button>
+						<h3 style="margin: 0;">Navigating the Data</h3>
+						<p>This map allows you to track three types of Smart Growth development in the Greater Philadelphia Region: Developments Near Transit (DNT), Traditional Neighborhood Development (TND), and Conservation Subdivisions (CSD). </p>
+						<p>Use the buttons in the upper right hand corner of the map to select one of the three categories and then click on an individual pinpoint to learn more about a specific project. </p>
+						<p>You may zoom in and out of the map using the buttons in the upper left portion of the map. Use the button below the zoom controls to display the entire DVRPC region. You may choose to change the background of the map by using the button in the upper right portion of the map. </p>
+				</div>
+         </div>
+		
+        <div class="col-sm-8 col-lg-8" id="map"><div id="legendBox"> </div>
+	<div class="col-sm-5 col-lg-5" id="wrapper">
+		
+		</div>
+	
+		
+        </div>
+    </div>
+
+    <div class="modal fade" id="aboutModal">
+        <div class="modal-dialog" style="width:775px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:black; border: 1px solid white">
+                   <img id="" src="img/SGPD_Header.png" alt="Smart Growth Project Database Logo"/>
+				
+                    <h4 class="modal-title"> </h4>
+                </div>
+
+                <div class="modal-body">
+                     <ul id="aboutTabs" class="nav nav-tabs">
+                        <li class="active"><a href="#about" data-toggle="tab"><i class="icon-question-sign"></i>&nbsp;About the project</a></li>
+                          <li><a href="#contact" data-toggle="tab"><i class="glyphicon glyphicon-envelope"></i>&nbsp;Contact</a></li>
+						<li><a href="#disclaimer" data-toggle="tab"><i class="icon-exclamation-sign"></i>&nbsp;Disclaimer</a></li>
+                    </ul>
+                    <div id="aboutTabsContent" class="tab-content" style="padding-top: 10px;">
+                        <div class="tab-pane fade active in" id="about">
+								  <p>
+									
+										The <I>Smart Growth Project Database</I> is an application that tracks a variety of noteworthy development projects throughout the Greater Philadelphia Region. The database focuses on three types of Smart Growth projects: development near transit, traditional neighborhood development (TND), and conservation subdivisions. These types of development were selected because they often embody several of the core principles of Smart Growth:
+										<ul style="font-size:85%">
+										<li>Providing a mix of land uses,</li>	
+										<li>Creating a range of housing options,</li>	
+										<li>Preserving open space, farmland, and critical environmental areas,</li>	
+										<li>Creating walkable neighborhoods, and</li>	
+										<li>Providing a variety of transportation choices.</li>	
+										</ul>
+										This database is meant to serve as a quick and convenient reference tool for planners, local officials, and citizens who are interested in Smart Growth. It includes projects that are proposed, in progress, and complete. The details of proposed developments are subject to change and projects will be updated and added as new information becomes available. The inclusion of any particular project within this application does not serve as an endorsement by DVRPC or its partner agencies. Furthermore, this application focuses on recent developments because they are the most relevant to today's real estate and economic climate. <br>
+									</p>  
+								<p style="margin-left:30px;font-size:85%"><B>Total Projects:</B> 203<br>
+									<B>Developments Near Transit:</B> 173<br>			
+								    <B>Traditional Neighborhood Developments:</B> 24<br>	
+									<B>Conservation Subdivisions:</B> 13<br>
+									<font color='red' size='1px'><i>Last Updated: March 2020</i></font><br>
+									To submit a project to be considered for inclusion in the <I>Smart Growth Project Database</I>, please email Andrew Svekla at <a class="one" href="mailto:asvekla@dvrpc.org">asvekla@dvrpc.org</a>. 
+			                         For more information about DVRPC’s support of Smart Growth throughout the region, please visit <a class="one" href="//www.dvrpc.org/SmartGrowth" target="_blank" rel="noopener"> www.dvrpc.org/SmartGrowth</a>.
+								</p>	
+
+					  <div class="modal-footer" >
+                        <div class="pull-left">		
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Continue</button>
+						</div>
+						 <a href="//www.dvrpc.org" target="_new" ><img class="dvrpclogo" style="margin:0px 0px 0px 0px" src="img/dvrpc_logoX.png" alt="DVRPC Logo"/></a>
+                    </div>
+                        </div>
+							<div class="tab-pane fade " id="contact">
+										<p>
+											<B>Andrew Svekla, AICP</B> <br/>
+											Associate Manager, Office of Smart Growth<br>
+											Office of Smart Growth<br/>
+											Phone: 215-238-2810<br/>
+											<a class="one" href="mailto:asvekla@dvrpc.org">asvekla@dvrpc.org</a> 
+										</p>			
+									  
+							</div>
+							<div class="tab-pane fade" id="disclaimer">
+								<p>This web page is a public resource of general information. The Delaware Valley Regional Planning Commission (DVRPC) makes no warranty, 
+								representation, or guarantee as to the content, sequence, accuracy, timeliness, or completeness of any of the spatial data or database 
+								information provided herein. DVRPC and partner state, local, and other agencies shall assume no liability for errors, omissions, or 
+								inaccuracies in the information provided regardless of how caused; or any decision made or action taken or not taken by any person relying 
+								on any information or data furnished within.</p>
+							</div>
+                    </div>
+					
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="contactModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Contact Us!</h4>
+                </div>
+                <div class="modal-body"><!--Project Manager contact info goes here-->
+				<p>
+						 <B>Andrew Svekla, AICP</B> <br/>
+						Associate Manager, Office of Smart Growth<br>
+						Office of Smart Growth<br/>
+						Phone: 215-238-2810<br/>
+						<a href="mailto:asvekla@dvrpc.org">asvekla@dvrpc.org</a> 
+					  </p>
+                    <form id="contact-form">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" id="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="text" class="form-control" id="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="comment">Comment:</label>
+                                <textarea class="form-control" rows="3" id="comment"></textarea>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary pull-right" data-dismiss="modal">Submit</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="DNTModal">
+        <div class="modal-dialog" style="width: 700px">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#27AAE1">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><strong>Development Near Transit </strong></h4>
+                </div>
+
+                <div class="modal-body">
+							<p>Transit-Oriented Development (TOD) is often cited as one of the most effective ways of promoting Smart Growth.  
+								  TOD is compact, pedestrian-friendly, mixed-use development within a short distance of a transit stop. 
+								  When properly designed, TODs can promote multiple transportation options and help reduce automobile dependency.  
+								  Developments typically must meet a number of criteria related to density, parking, and design to be considered a TOD.</p>
+
+								 <p>The projects highlighted here are characterized as <span style="color:#27AAE1"><i>Development  Near Transit</i></span> rather than TODs because they sometimes do not meet all of the criteria 
+								 typically associated with TOD. However, these developments are notable for their proximity to transit and the transit- and pedestrian-friendly features they include.</p>	      
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+	 <div class="modal fade" id="TNDModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#8DC63F">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                     <h4 class="modal-title" ><strong>Traditional Neighborhood Development</strong> </h4>
+                </div>
+
+                <div class="modal-body">
+							<p>Traditional Neighborhood Development (TND) generally describes a mixed-use community that is walkable and compact, with residential, retail, office, and civic buildings in close proximity to one another. These developments get their name from the traditional planning principles that guided the development of many older small towns and neighborhoods around the country. Unlike many conventional suburban developments, TNDs typically include a range of housing types and provide residents with the option of walking, biking, or driving to places within their neighborhood. Some TNDs include a transit connection while others do not.</p>
+							<p>A number of states have written formal TND ordinances into their planning and zoning enabling acts. The <a href="https://www.dep.state.pa.us/hosting/growingsmarter/MPCode%5B1%5D.pdf" target="_blank" rel="noopener">Pennsylvania Municipalities Planning Code (MPC)</a> includes enabling legislation for TND (Article VII-A: 2000). In New Jersey, the standard method for creating large scale, single-developer, traditional development is through a Planned Unit Development (PUD).</p>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+	
+	<div class="modal fade" id="CSDModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"style="background-color:#F15A29">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" ><strong> Conservation Subdivisions</strong></h4>
+                </div>
+                <div class="modal-body">
+							<p>Conservation Subdivision Design (CSD) is a development strategy that can help communities manage their growth and preserve open space and natural areas in residential housing developments. Unlike conventional subdivisions, CSD concentrates home construction on only a portion of a site in order to protect sensitive and valuable open space, habitat, and other environmental resources. </p> 
+
+						<p><a class="one" href="https://www.natlands.org/" target="_blank" rel="noopener">Natural Lands Trust</a> is a non-profit conservation organization that is a leader in the field of conservation design. Natural Lands Trust have developed <a class="one" href="https://www.natlands.org/publications/publications/?did=108" target="_blank" rel="noopener"><i>Growing Greener: Conservation by Design</i></a> ordinances that have been adopted by many communities in southeastern Pennsylvania.</p>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+	
+	     <div class="modal fade" id="DNT2Modal">
+        <div class="modal-dialog" style="width: 700px">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#27AAE1">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> 
+                <!--     <button class="close" data-dismiss="alert" type="button">×</button> --> 
+                    <h4 class="modal-title"><strong>Development Near Transit </strong></h4>
+                </div>
+
+                <div class="modal-body">
+              
+                            <p>Transit-Oriented Development (TOD) is often cited as one of the most effective ways of promoting Smart Growth.  
+                                  TOD is compact, pedestrian-friendly, mixed-use development within a short distance of a transit stop. 
+                                  When properly designed, TODs can promote multiple transportation options and help reduce automobile dependency.  
+                                  Developments typically must meet a number of criteria related to density, parking, and design to be considered a TOD.</p>
+
+                                 <p>The projects highlighted here are characterized as <span style="color:#27AAE1"><i>Development  Near Transit</i></span> rather than TODs because they sometimes do not meet all of the criteria 
+                                 typically associated with TOD. However, these developments are notable for their proximity to transit and the transit- and pedestrian-friendly features they include.</p>         
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+	
+	
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>   
+    <script type="text/javascript" src="js/typeahead.bundle.min.js"></script> <!--https://github.com/twitter/typeahead.js/-->
+	<script type="text/javascript" src="js/geojson-utils.js"></script>
+    <script src="https://unpkg.com/leaflet@0.7/dist/leaflet.js"></script>
+	<script src="js/leaflet.label.js"></script>
+	<script src="js/leaflet.viewcenter.js"></script>
+	<script src="js/leaflet-providers.js"></script>
+
+	<!-- Esri Leaflet Core -->
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet-core.js"></script>
+
+    <!-- Esri Leaflet Geocoder -->
+    <script type="text/javascript" src="src/esri-leaflet-geocoder.js"></script>
+    <link rel="stylesheet" type="text/css" href="src/esri-leaflet-geocoder.css">
+ 
+    
+	<script type="text/javascript">
+var map;
+//OPEN ABOUT DIALOG
+$('#aboutModal').modal();
+
+$(document).ready(function() {
+loadImage1();
+$('input[name="overlayLayers"]').change(function () {
+			 if ($(this).attr('id') == 'DNT_PT') {
+							$('#DNTModal').modal('show');
+							loadImage1();
+							map.addLayer(DNT_PT);
+						} else if ($(this).attr('id') == 'TND_PT') {
+								$('#TNDModal').modal('show');
+								loadImage2();
+								map.addLayer(TND_PT);
+							} else if ($(this).attr('id') == 'CS_PT') {
+									$('#CSDModal').modal('show');
+									loadImage3();
+									map.addLayer(CS_PT);
+								};
+
+			$('input:radio[name="overlayLayers"]:not(:checked)').each(function () {
+						map.removeLayer(window[$(this).attr('id')]);
+						$('#carousel-example-generic').empty();
+						$('#resultsheader').empty().removeClass();
+						$('#box').empty().removeClass();
+						$('#infosidebar').empty();      
+				});
+	});
+
+       function loadImage1() {
+            $('#legendBox').css('backgroundImage', 'url(img/DNT_LEGEND.png)');
+            $('#legendBox').css('width', '100');
+            $('#legendBox').css('height', '100');
+        }
+        function loadImage2() {
+            $('#legendBox').css('backgroundImage', 'url(img/TND_LEGEND.png)');
+            $('#legendBox').css('width', '100');
+            $('#legendBox').css('height', '100');
+        }
+        function loadImage3() {
+                $('#legendBox').css('backgroundImage', 'url(img/CSD_LEGEND.png)');
+                $('#legendBox').css('width', '100');
+                $('#legendBox').css('height', '30');
+        }
+         
+    });
+	
+	$('#aboutModal').on('hidden.bs.modal', function () {
+		//  window.alert('hidden event fired!');
+	$('#DNT2Modal').modal();
+	});
+
+	$('#DNT2Modal').on('hide.bs.modal', function () {
+    $('#DNT2Modal').remove();
+	});
+
+           // Basemap Layers
+		var mapquestOSM =  L.tileLayer.provider('Esri.WorldImagery');
+		
+		CartoDB_Positron = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'
+        });
+	
+        map = L.map("map", {
+             minZoom: 9,
+             zoomControl:true
+         //    layers: [CartoDB_Positron],
+        });
+			
+        map.addLayer(CartoDB_Positron);
+        // Overlay Layers
+		
+		var DNTIcon = L.icon({
+                            iconUrl: 'img/DNT_Complete_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15],
+							
+                    });
+					 var DNTIcon2 = L.icon({
+                            iconUrl: 'img/DNT_InProgress_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+						 var DNTIcon3 = L.icon({
+                            iconUrl: 'img/DNT_Proposed_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+            
+		var DNT_PT = L.geoJson(null, {
+                pointToLayer: function (feature, latlng) {
+             //   return L.marker(latlng, {icon: DNTIcon, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-DNT'  });
+			   switch (feature.properties.Status) {
+                    case 'Completed': return L.marker(latlng, {icon: DNTIcon, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-DNT'  });
+					case 'In Progress': return L.marker(latlng, {icon: DNTIcon2, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-DNT'  });
+					case 'Proposed': return L.marker(latlng, {icon: DNTIcon3, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-DNT'  });
+				} 
+				},	
+                onEachFeature: function(feature, layer){
+					if (feature.properties) {
+						layer.on({click: DNT_ID});
+						layer.on({dblclick: zoomToPoint});	
+                }
+			}	
+            });
+        $.getJSON("data/DNT19.js", function (data) {
+            DNT_PT.addData(data);
+        });
+	
+		var TNDIcon = L.icon({
+                            iconUrl: 'img/TND_Complete_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+					 var TNDIcon2 = L.icon({
+                            iconUrl: 'img/TND_InProgress_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+						 var TNDIcon3 = L.icon({
+                            iconUrl: 'img/TND_Proposed_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+            
+		var TND_PT = L.geoJson(null, {
+                pointToLayer: function (feature, latlng) {
+					// return L.marker(latlng, {icon: TNDIcon, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-TND'  });
+				  switch (feature.properties.Status) {
+						case 'Completed': return L.marker(latlng, {icon: TNDIcon, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-TND'  });;
+						case 'In Progress': return L.marker(latlng, {icon: TNDIcon2, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-TND'  });
+						case 'Proposed': return L.marker(latlng, {icon: TNDIcon3, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-TND'  });
+					}
+				},	
+                onEachFeature: function(feature, layer){
+					if (feature.properties) {
+						layer.on({click: TND_ID});
+						layer.on({dblclick: zoomToPoint});
+                }
+			}	
+            });
+        $.getJSON("data/TND.js", function (data) {
+            TND_PT.addData(data);
+        });
+	
+		var CSIcon = L.icon({
+                            iconUrl: 'img/CSD_Complete_Shadow.png',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, 15]
+                    });
+					
+		var CS_PT = L.geoJson(null, {
+                pointToLayer: function (feature, latlng) {
+                    return L.marker(latlng, {icon: CSIcon, riseOnHover: true}).bindLabel(feature.properties.Project, { className: 'leaflet-label-CSD'  });
+				},	
+                 onEachFeature: function(feature, layer){
+					if (feature.properties) {
+						layer.on({click: CS_ID});
+						layer.on({dblclick: zoomToPoint});
+                }
+			}	
+            });
+        $.getJSON("data/CS.js", function (data) {
+            CS_PT.addData(data);
+        });
+	
+		var Rail = L.geoJson(null, {
+		style: {
+		clickable: false,
+		color: '#7F7F7F',
+		weight :5,
+		opacity: 1
+		},
+		onEachFeature: function(feature, layer){
+				if (feature.properties) {
+				}
+            },
+        });
+        $.getJSON("data/RegionalRail.js", function (data) {
+            Rail.addData(data);
+        });
+		
+	    var StationIcon = L.icon({
+					iconUrl: 'img/Station.png',
+					iconSize: [10, 10]
+					//iconAnchor: [15, 15],
+					//popupAnchor: [0, 15]
+				});
+				
+		var RailStation = L.geoJson(null, {
+				pointToLayer: function (feature, latlng) {
+			  return L.marker(latlng, {icon: StationIcon,clickable:false});
+					},
+				onEachFeature: function(feature, layer){
+					if (feature.properties) {
+					//	layer.bindLabel(feature.properties.STATION, { noHide: true, direction: 'auto', className: 'leaflet-label' });				
+				}
+                },
+            });
+        $.getJSON("data/Stations.js", function (data) {
+            RailStation.addData(data);
+        });
+		
+		var StationLab = L.icon({
+					iconUrl: 'img/Station.png',
+					iconSize: [10, 10]
+					//iconAnchor: [15, 15],
+					//popupAnchor: [0, 15]
+				});
+				
+		var StationLabel = L.geoJson(null, {
+				pointToLayer: function (feature, latlng) {
+				return L.marker(latlng, {icon: StationLab,clickable:false});
+					},
+				onEachFeature: function(feature, layer){
+					if (feature.properties) {
+						layer.bindLabel(feature.properties.STATION, { noHide: true, direction: 'auto', className: 'leaflet-label' });				
+				}
+                },
+            });
+        $.getJSON("data/Stations.js", function (data) {
+            StationLabel.addData(data);
+        });
+		
+		var DVRPC = L.geoJson(null, {
+            style: { color: 'black',weight: 4, fill: false,opacity: 0.75,clickable: false }
+        });
+        $.getJSON("data/County_DVRPC.js", function (data) {
+            DVRPC.addData(data);
+         }).complete(function () {
+                map.fitBounds(DVRPC.getBounds());
+        });  
+			
+		var AllPoints = L.layerGroup([DNT_PT, CS_PT, TND_PT]);
+			
+		(Rail).addTo(map);
+		(DVRPC).addTo(map);
+		(DNT_PT).addTo(map);
+		
+		var overlays = {
+			"Developlment Near Transit": DNT_PT,
+			"Traditional Neighborhood Development": TND_PT,
+			"Conservation Subdivision": CS_PT,
+		};	   
+		 
+		var baseLayers = {
+		"Imagery": mapquestOSM,
+		"Streets": CartoDB_Positron	
+		};
+			   
+		var layerControl = L.control.layers(baseLayers).addTo(map);			
+		
+		var viewCenter = new L.Control.ViewCenter();
+					map.addControl(viewCenter);
+
+	
+        var scaleControl = L.control.scale({
+        position: 'bottomright'
+        });
+		
+ // create the geocoding control and add it to the map
+      var searchControl = new L.esri.Controls.Geosearch().addTo(map);
+
+	/////FUNCTIONS	
+		map.on('moveend', function(e){
+		 if (map.getZoom() <=9 && map.hasLayer(Rail)) {
+		map.removeLayer(Rail);
+		}
+		if (map.getZoom() >9 && map.hasLayer(Rail)==false) {
+		map.addLayer(Rail);
+		}
+		});
+	
+		map.on('moveend', function(e){
+		 if (map.getZoom() <=12 && map.hasLayer(RailStation)) {
+		map.removeLayer(RailStation);
+		}
+		if (map.getZoom() >12&& map.hasLayer(RailStation)==false) {
+		map.addLayer(RailStation);
+		}
+		});
+		
+		map.on('moveend', function(e){
+		 if (map.getZoom() <=13 && map.hasLayer(StationLabel)) {
+		map.removeLayer(StationLabel);
+		}
+		if (map.getZoom() >13&& map.hasLayer(StationLabel)==false) {
+		map.addLayer(StationLabel);
+		}
+		});
+		
+		function sidebar (e) {
+		$( "#overlay-layers" ).append;
+		}
+		
+		//Action on feature selections////////////
+        function zoomToPoint(e){
+        var layer= e.target;
+        var latLng = layer.getLatLng();
+            map.setView(latLng, 15);
+            }
+            function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+            return false;
+            };
+   
+        function DNT_ID(e) {
+			resetIconhighlights();
+			resethighlight();
+			sidebar();
+			highlightMarkers(e);
+            var length = 0;
+			var layer = e.target;
+          //    (e).eachLayer(function(layer) {
+			var props = layer.feature.properties
+
+				if (props.Website==='N'){ var Website = " "  ;}
+				else { var Website =  '<a class="DNT" href="' + (props.Website)+ '" target="_blank" rel="noopener">' + (props.Web_Link) +"</a></div>";}
+				   if (props.Descr2===undefined){ var Descr2 = " "  ;}
+                else { var Descr2 =  (props.Descr2);}
+				if (props.PHOTO1===undefined){ var PHOTO1= " "  ;}
+				else { var PHOTO1 = "<div class='carousel-inner'>"+"<div class='item active'><img src='"+ (props.PHOTO1) +"' alt='property photo'></div>"+"<div class='item'><img src='"+ (props.PHOTO2) + "' alt='property photo'></div></div>"+" <a class='left carousel-control' href='#carousel-example-generic' data-slide='prev'>"+"<span class='glyphicon glyphicon-chevron-left'></span>"+" </a>"+" <a class='right carousel-control' href='#carousel-example-generic' data-slide='next'>"+"<span class='glyphicon glyphicon-chevron-right'></span>"+"</a>"	;}
+				if (props.Photo_Cred===undefined){ var Photo_Cred = " "  ;}
+				else { var Photo_Cred = "<div class='labelfieldsource'>"+ (props.Photo_Cred) +  "</div>";}
+				
+			var info = 	     "<div class='labelfieldTND'>"+ (props.Project) 
+									+"</div><div class='labelfieldTND1'>"+ (props.MCD) +", " +(props.STATE) 
+									+"</div>";
+			 var  content =  	
+									"<div class='labelfield'><b>Status: </b>"+ (props.Status) 
+								    +"<div class='labelfield'><b>Developer: </b>"+ (props.Developer) 
+									+"<div class='labelfield'><b>Transit Line: </b>"+ (props.Transit)  
+									+"<div class='labelfield'><b>Station: </b>"+ (props.Station)  
+									+"</div><br>"
+								    +"<div class='labelfield'><b>Description: </b>"+ (props.Descr1) + " " + Descr2	
+								    +"</div><br>"
+								    + Website
+							         +"</div></div>";			      						
+			var  content2=       PHOTO1
+											+ Photo_Cred
+
+				var status = props.DVSGA; 
+			    //style header based on status
+				if (status==='Y'){
+					document.getElementById('box').className = 'YDVSGA ';
+			       document.getElementById("box").onclick = function() {window.open( 'https://www.delawarevalleysmartgrowth.org', '_blank' );} // <- This is what makes it open in a new window.
+				}else if(status==='N'){
+					document.getElementById('box').className = 'NDVSGA ';
+				};
+							
+				document.getElementById('resultsheader').innerHTML = info;
+				document.getElementById('resultsheader').className = 'rhDNT';	
+				document.getElementById('infosidebar').innerHTML = content;
+				document.getElementById('carousel-example-generic').innerHTML = content2;
+				$('.carousel').carousel('pause');
+            };
+		
+function TND_ID(e) {
+			resetIconhighlights();
+			resethighlight();
+			sidebar();
+			highlightMarkers(e);
+            var layer = e.target;
+            var props = layer.feature.properties
+			
+				if (props.Website==='N'){ var Website = " "  ;}
+				else { var Website =  '<a class="TND" href="' + (props.Website)+ '" target="_blank" rel="noopener">' + (props.Web_Link) +"</a></div>";}
+				if (props.PHOTO1===undefined){ var PHOTO1= " "  ;}
+				else { var PHOTO1 = "<div class='carousel-inner'>"+"<div class='item active'><img src='"+ (props.PHOTO1) +" ' alt='property photo'></div>"+"<div class='item'><img src='"+ (props.PHOTO2) + "' alt='property photo'></div></div>"+" <a class='left carousel-control' href='#carousel-example-generic' data-slide='prev'>"+"<span class='glyphicon glyphicon-chevron-left'></span>"+" </a>"+" <a class='right carousel-control' href='#carousel-example-generic' data-slide='next'>"+"<span class='glyphicon glyphicon-chevron-right'></span>"+"</a>"	;}
+				if (props.Photo_Cred===undefined){ var Photo_Cred = " "  ;}
+				else { var Photo_Cred = "<div class='labelfieldsource'>"+ (props.Photo_Cred) +  "</div>";}
+				
+			var info =  "<div class='labelfieldTND'>"+ (props.TND) 
+							+"</div><div class='labelfieldTND1'>"+ (props.MCD) +", " +(props.STATE) 
+							+"</div>";
+			var  content =  	
+									"<div class='labelfield'><b>Status: </b>"+ (props.Status) 
+								   +"<div class='labelfield'><b>Developer: </b>"+ (props.Developer) 
+								   +"</div><br>"
+								   +"<div class='labelfield'><b>Description: </b>"+ (props.Descr1) + " " + (props.Descr2) 	
+								   +"</div><br>"
+							      +Website
+							        +"</div>"
+										      						
+				var  content2= PHOTO1
+							   + Photo_Cred
+				
+				var status = props.DVSGA; 
+			    //style header based on status
+				if (status==='Y'){
+				    document.getElementById("box").className='YDVSGA';
+					document.getElementById("box").onclick = function() {window.open( 'https://www.delawarevalleysmartgrowth.org', '_blank' );} // <- This is what makes it open in a new window.
+				}else if(status==='N'){
+					document.getElementById('box').className = 'NDVSGA ';
+				};
+					
+				document.getElementById('resultsheader').innerHTML = info;
+				document.getElementById('resultsheader').className = 'rhTND';	
+				document.getElementById('infosidebar').innerHTML = content;
+				document.getElementById('carousel-example-generic').innerHTML = content2;
+				$('.carousel').carousel('pause');
+		};
+			
+function CS_ID(e) {
+			resetIconhighlights();
+			resethighlight();
+			highlightMarkers(e);
+            var layer = e.target;
+            var props = layer.feature.properties
+				
+				if (props.REPORT===undefined){ var REPORT = " "  ;}
+				else { var REPORT =  '<a class="CSD" href="' + (props.REPORT)+ '" target="_blank" rel="noopener">' + (props.NLTFLink) +"</a></div>";}
+
+				var info =  	 "<div class='labelfieldTND'>"+ (props.Project) 
+									+"</div><div class='labelfieldTND1'>"+ (props.MCD) +", " +(props.State) 
+									+"</div>";
+				var  content =  
+									"<div class='labelfield'><b>Status: </b>"+ (props.Status) 
+								    +"<div class='labelfield'><b>Developer: </b>"+ (props.Developer)  
+									+"</div><br>"
+								    +"<div class='labelfield'><b>Description: </b>"+ (props.Descr1) + " " + (props.Descr2) 		
+								    +"</div><br>"
+									+ REPORT
+									+"</div>";	
+		
+				document.getElementById('resultsheader').innerHTML = info;
+				document.getElementById('resultsheader').className = 'rhCSD';	
+				document.getElementById('infosidebar').innerHTML = content;
+		 };
+
+	//hack to highlight markers with box on click
+        function highlightMarkers(e){
+            var layer = e.target;
+            var iconElem = L.DomUtil.get(layer._icon);
+            iconElem.style.border="4px #5B82A5 solid";
+            iconElem.style.height="30px";
+            iconElem.style.width="30px";
+            iconElem.style.marginTop="-19px";
+            iconElem.style.marginLeft="-19px";
+            iconElem.id="selectedIcon";
+        };
+
+		function resethighlight(){
+		  resetIconhighlights();
+		}
+		//hack to remove highlight from markers
+        function resetIconhighlights(){
+        	var highlticon = document.getElementById('selectedIcon');
+        	if (highlticon!=undefined){
+        		highlticon.style.border="";
+        		highlticon.style.height="30px";
+        		highlticon.style.width="30px";
+        		highlticon.style.marginTop="-15px";
+        		highlticon.style.marginLeft="-15px";
+        		highlticon.id="";
+        	}else{
+        		//do nothing
+        	}
+        };
+		
+		map.on('click',function(e){
+                   resethighlight();
+				
+            });
+			
+        if (document.body.clientWidth <= 767) {
+        var isCollapsed = true;
+        } else {
+            var isCollapsed = false;
+            map.addControl(scaleControl);
+        };
+//		});
+
+        // Placeholder hack for IE
+        if (navigator.appName == "Microsoft Internet Explorer") {
+            $("input").each( function () {
+                if ($(this).val() == "" && $(this).attr("placeholder") != "") {
+                    $(this).val($(this).attr("placeholder"));
+                    $(this).focus(function () {
+                        if ($(this).val() == $(this).attr("placeholder")) $(this).val("");
+                    });
+                    $(this).blur(function () {
+                        if ($(this).val() == "") $(this).val($(this).attr("placeholder"));
+                    });
+                }
+            });
+        }
+    </script>
+	      <script>var _gaq=[['_setAccount','UA-9825778-1'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document))</script>
+ 
+  </body>
+</html>
